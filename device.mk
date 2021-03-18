@@ -1,5 +1,6 @@
 #
 # Copyright (C) 2020 The LineageOS Project
+# Copyright (C) 2021 The LegionOS Project
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -19,7 +20,6 @@ $(call inherit-product, frameworks/native/build/phone-xhdpi-6144-dalvik-heap.mk)
 $(call inherit-product, vendor/xiaomi/picasso/picasso-vendor.mk)
 
 # Inherit properties
-include $(LOCAL_PATH)/system_ext.prop
 include $(LOCAL_PATH)/system.prop
 include $(LOCAL_PATH)/product.prop  
 
@@ -30,12 +30,16 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.aware.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.wifi.aware.xml \
     frameworks/native/data/etc/android.hardware.wifi.rtt.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/android.hardware.wifi.rtt.xml
 
-
 PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE := true
+
+# APN
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/configs/apns-conf.xml:system/etc/apns-conf.xml
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
-    $(LOCAL_PATH)/overlay
+    $(LOCAL_PATH)/overlay \
+    $(LOCAL_PATH)/overlay-lineage
 
 # Overlays -- Override vendor ones
 PRODUCT_PACKAGES += \
@@ -47,14 +51,12 @@ PRODUCT_PACKAGES += \
 
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
+    vendor/qcom/opensource/commonsys/packages/apps/Bluetooth \
+    vendor/qcom/opensource/commonsys/system/bt/conf \
     device/xiaomi/picasso
 
-# Boot animation
-TARGET_SCREEN_HEIGHT := 2400
-TARGET_SCREEN_WIDTH := 1080
-
 # Shipping API level
-PRODUCT_SHIPPING_API_LEVEL := 29
+PRODUCT_SHIPPING_API_LEVEL := 30
 
 # VNDK
 PRODUCT_TARGET_VNDK_VERSION := 30
@@ -157,22 +159,30 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/keylayout/uinput-fpc.kl:$(TARGET_COPY_OUT_SYSTEM)/usr/keylayout/uinput-fpc.kl \
     $(LOCAL_PATH)/keylayout/uinput-goodix.kl:$(TARGET_COPY_OUT_SYSTEM)/usr/keylayout/uinput-goodix.kl
+
+# Lights
+PRODUCT_PACKAGES += \
+    android.hardware.lights-service.xiaomi_picasso
     
 # NFC
 PRODUCT_PACKAGES += \
     com.android.nfc_extras \
     NfcNci \
+    Tag \
     SecureElement
 
 # Overlay - notch style
 PRODUCT_PACKAGES += \
     NotchNoFillOverlay
-    
+
 # Parts
 PRODUCT_PACKAGES += \
     XiaomiParts
 
-#Powerstats
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/parts/privapp-permissions-parts.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/privapp-permissions-parts.xml
+
+# Powerstats
 PRODUCT_PACKAGES += \
     android.hardware.power.stats@1.0-service
 
@@ -203,14 +213,14 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     lineage.trust@1.0-service
 
-# WiFi
+# Wi-Fi
 PRODUCT_PACKAGES += \
     TetheringConfigOverlay \
     TelecommResCommon \
     TelephonyResCommon \
     WifiResCommon
 
-# WiFi Display
+# Wi-Fi Display
 PRODUCT_PACKAGES += \
     libnl
 
@@ -222,7 +232,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/hiddenapi-package-whitelist.xml:$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/system/etc/sysconfig/hiddenapi-package-whitelist.xml \
     $(LOCAL_PATH)/configs/qti_whitelist.xml:$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/system/etc/sysconfig/qti_whitelist.xml \
     $(LOCAL_PATH)/configs/qti_whitelist_system_ext.xml:$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/system_ext/etc/sysconfig/qti_whitelist_system_ext.xml
-
 
 # Thermal
 PRODUCT_PACKAGES += \
@@ -238,7 +247,7 @@ PRODUCT_COPY_FILES += \
 
 # Modules
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/modules-21.3.10,$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/lib/modules)
+    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/prebuilt/modules-21.3.10,$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/lib/modules)
 
 #miui ringtones
 PRODUCT_COPY_FILES += \
@@ -247,6 +256,6 @@ PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,$(LOCAL_PATH)/media/notifications,$(TARGET_COPY_OUT_SYSTEM)/media/audio/notifications) \
     $(call find-copy-subdir-files,*,$(LOCAL_PATH)/media/ui,$(TARGET_COPY_OUT_SYSTEM)/media/audio/ui)
 
-#manifests
+# Manifests
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/android.hardware.graphics.mapper-impl-qti-display.xml:$(TARGET_COPY_OUT_PRODUCT)/vendor_overlay/$(PRODUCT_TARGET_VNDK_VERSION)/etc/vintf/manifest/android.hardware.graphics.mapper-impl-qti-display.xml
