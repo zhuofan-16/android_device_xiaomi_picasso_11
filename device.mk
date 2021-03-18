@@ -21,7 +21,8 @@ $(call inherit-product, vendor/xiaomi/picasso/picasso-vendor.mk)
 
 # Inherit properties
 include $(LOCAL_PATH)/system.prop
-include $(LOCAL_PATH)/product.prop  
+include $(LOCAL_PATH)/system_ext.prop
+include $(LOCAL_PATH)/product.prop
 
 # Permissions
 PRODUCT_COPY_FILES += \
